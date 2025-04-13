@@ -89,10 +89,14 @@ def search():
 
 @app.route('/kategori/<string:category_name>')
 def category(category_name):
-    category= Category.query.filter_by(name=category_name).first_or_404()
-    category_fullname= category_fullnames.get(category_name)
-    products= Product.query.filter_by(category_id=category.id).all()
+    category = Category.query.filter_by(name=category_name).first()
+    if not category:
+        category = Category(name=category_name)
+        db.session.add(category)
+        db.session.commit()
 
+    category_fullname = category_fullnames.get(category_name, category_name.capitalize())
+    products = Product.query.filter_by(category_id=category.id).all()
     return render_template('category_filter.html', category_name=category_name, category_fullname=category_fullname, products=products)
 
 # ----------------------------------------------------- Sepet -----------------------------------------------------
