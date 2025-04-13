@@ -1,0 +1,269 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+/* Genel */
+
+#ust-serit {
+    height: 50px;
+    width: 100%;
+    border-bottom: 2px solid rgb(200, 200, 200);
+    display: flex;
+    align-items: center;
+}
+
+.serit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 40px;
+    height: 50px;
+    width: 100%;
+    background-color: #760000;
+}
+
+.serit h1 {
+    color: #fff;
+}
+
+p, a {
+    font-family: "Poppins", sans-serif;
+    color: black;
+}
+
+.main-gku {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+nav {
+    padding: 10px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: space-around;
+}
+
+nav a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th, table td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #760000;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    outline: none;
+    cursor: pointer;
+    margin-bottom: 30px;
+}
+
+
+select option {
+    padding: 10px;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+}
+
+.btn {
+    border-style: none;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 17px;
+    background-color: #760000;
+    border-radius: 5px;
+    height: 30px;
+    width: 120px;
+    cursor: pointer;
+}
+
+/* ----------------- */
+/* Anasayfa */
+.user {
+    border: none;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    background-color: #760000;
+    border-radius: 5px;
+    height: 30px;
+    width: fit-content;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.butonlar {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+#search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#search-form {
+    display: flex;
+    align-items: center;
+}
+
+#search-box {
+    width: 250px;
+    padding: 10px;
+    font-size: 15px;
+    border: 2px solid #ccc;
+    border-radius: 20px 0 0 20px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+#search-box:focus {
+    border-color: #760000;
+}
+
+#search-btn {
+    padding: 10px 14px;
+    font-size: 16px;
+    border: 2px solid #760000;
+    border-left: none;
+    background-color: #760000;
+    color: white;
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#search-btn:hover {
+    background-color: #760000;
+}
+
+.categories {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.category-img {
+    margin: 10px;
+    height: 150px;
+}
+
+/* -------- */
+
+/* Flash mesajları */
+.flash-messages {
+    margin: 15px auto;
+    max-width: 900px;
+    max-height: 50px;
+    text-align: center;
+}
+
+.flash-message {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.flash-message.success {
+    background-color: #27ae60;
+}
+
+.flash-message.danger {
+    background-color: #e74c3c;
+}
+
+.flash-message.info {
+    background-color: #3498db;
+}
+
+/* Ürünler ile ilgili bölüm */
+.product-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.product-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px;
+    transition: transform 0.3s ease;
+}
+
+/* ------------------------ */
+/* Footer Bölümü */
+footer {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+footer p {
+    color: #fff;
+}
+
+.footer-top {
+    background-color: #760000;
+    text-align: start   ;
+    padding: 20px 0;
+}
+
+.social-links {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.social-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.footer-bottom {
+    background-color: #333;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.footer-bottom p {
+    margin: 0;
+}
