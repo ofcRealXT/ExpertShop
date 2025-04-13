@@ -1,0 +1,56 @@
+.wrapper {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: 3px solid darkred;
+    text-align: center;
+    width: 400px;
+    margin-top: 50px;
+}
+
+
+.form-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+
+.form-group input, 
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.form-group textarea {
+    height: 80px;
+    resize: vertical;
+}
+
+
+input[type="file"] {
+    background: white;
+    padding: 8px;
+    border: none;
+}
+
+
+button[type="submit"] {
+    background: #760000;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    width: 100%;
+    cursor: pointer;
+}
+
+button[type="submit"]:hover {
+    background: red;
+}
