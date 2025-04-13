@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <title>Arama sonuçları - {{ query }}</title>
+</head>
+<body>
+    <header>
+        <div id="ust-serit">
+            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop" height="50px" width="225px"></a>
+        </div>
+    </header>
+    
+    <main>
+        <div class="serit"><h1>{{ query }} için sonuçlar</h1></div>
+        {% if products %}
+            <div class="product-container">
+                {% for product in products %}
+                    <div class="product-card">
+                        <img height="75px" src="{{ url_for('static', filename='uploads/'+ product.image) }}" alt="{{ product.productname }}">
+                        <h3>{{ product.name }}</h3>
+                        <p class="price">{{ product.price }} ₺</p>
+                        <a href="{{ url_for('product_detail', product_id= product.id) }}"><button class="btn">Detayları gör</button></a>                        
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Aramanız için ürün bulunamadı.</p>
+        {% endif %}
+    </main>
+
+    <footer>
+        <div class="footer-top" style="margin-top: 150px;">
+            <div class="social-links">
+                <p>Bizimle iletişime geçin!</p>
+                <a href="mailto:talhaozc.2010@gmail.com" target="_blank"><i class='bx bx-envelope'></i> Mail</a>
+                <br>
+                <a href="https://www.instagram.com/talha.ozc22" target="_blank"><i class="bx bxl-instagram"></i> Instagram</a>
+            </div>
+        </div>
+        
+        <div class="footer-bottom"  >
+            <p>&copy; 2025 ExpertShop. Tüm hakları gizlidir.</p>
+        </div>
+    </footer>        
+</body>
