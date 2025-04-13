@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/cart_shop.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <title>Sepetiniz</title>
+</head>
+<body>
+    <header>
+        <div id="ust-serit">
+            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop" height="50px" width="225px"></a>
+        </div>
+    </header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}"><p>{{ message }}</p></div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}    
+    <main id="cart-main">
+        <div class="container">
+            <h1><i class="bx bxs-cart"></i> Sepetim</h1>
+    
+            {% if cart_products %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ürün</th>
+                            <th>Fiyat</th>
+                            <th>Adet</th>
+                            <th>Toplam</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_products %}
+                            <tr>
+                                <td>
+                                    <div class="product-info">
+                                        <a href="{{ url_for('product_detail', product_id= item.product.id) }}"><img src="{{ url_for('static', filename='uploads/'+ item.product.image) }}" alt="{{ item.product.name }}"></a>
+                                        <p>{{ item.product.name }}</p>
+                                    </div>
+                                </td>
+                                <td>{{ item.product.price }}₺</td>
+                                <td>
+                                    <div id="quantity-controls">
+                                        {% if item.quantity > 1 %}
+                                            <a href="{{ url_for('decrease_quantity', product_id=item.product.id) }}" id="btn-minus">−</a>
+                                        {% endif %}
+                                        
+                                        <span id="quantity">{{ item.quantity }}</span>
+                                    
+                                        {% if item.product.stocks> item.quantity %}
+                                            <a href="{{ url_for('increase_quantity', product_id=item.product.id) }}" id="btn-plus">+</a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="total-price">{{ item.product.price* item.quantity }} ₺</td>
+                                <td><a href="{{ url_for('remove_from_cart', product_id=item.product.id) }}" class="remove-btn" title="Sepetten kaldır"><i class="bx bx-trash"></i></a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            
+                <div id="cart-summary">
+                    <h3>Toplam: <span id="cart-total">{{ total_price }}</span>₺</h3>
+                    <div id="cart-buttons">
+                        <a href="{{ url_for('home') }}" id="continue-btn"><i class='bx bxs-shopping-bags' ></i> Alışverişe Devam Et</a>
+                        <a href="{{ url_for('empty_cart') }}" id="empty-btn"><i class="bx bx-trash"></i> Sepeti Boşalt</a>
+                        <a href="{{ url_for('complete_purchase') }}" id="checkout-btn"><i class='bx bx-credit-card'></i> Satın Al</a>
+                    </div>
+                </div>
+    
+            {% else %}
+                <p class="empty-cart"><i class="bx bxs-cart"></i> Sepetiniz boş! Alışverişe başlayın.</p>
+                <a href="{{ url_for('home') }}" id="continue-btn"><i class='bx bxs-shopping-bags' ></i> Alışverişe Başla</a>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-top" style="margin-top: 150px;">
+            <div class="social-links">
+                <p>Bizimle iletişime geçin!</p>
+                <a href="mailto:talhaozc.2010@gmail.com" target="_blank"><i class='bx bx-envelope'></i> Mail</a>
+                <br>
+                <a href="https://www.instagram.com/talha.ozc22" target="_blank"><i class="bx bxl-instagram"></i> Instagram</a>
+            </div>
+        </div>
+        
+        <div class="footer-bottom"  >
+            <p>&copy; 2025 ExpertShop. Tüm hakları gizlidir.</p>
+        </div>
+    </footer>
+</body>
+</html>
