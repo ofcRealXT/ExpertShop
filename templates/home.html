@@ -21,7 +21,10 @@
                         <a href="{{ url_for('my_shop') }}"><button class="btn"><i class='bx bxs-shopping-bags'></i>Mağazanız</button></a>
                     {% endif %}
                         <a href="{{ url_for('cart') }}"><button class="btn"><i class="bx bxs-cart"></i>Sepetim</button></a>
-                <a href="{{ url_for('logout') }}"><button class="btn"   ><i class='bx bx-log-out'></i>Çıkış Yap</button></a>
+                    {% if user.username== "realxt" %}
+                        <a href="{{ url_for('admin') }}"><button class="btn"><i class="bx bxs-dashboard"></i>Admin</button></a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}"><button class="btn"   ><i class='bx bx-log-out'></i>Çıkış Yap</button></a>
                 <span class="user"><i class='bx bx-user' ></i>{{ user.username }}</span>
                 {% endif %}
             </div>
