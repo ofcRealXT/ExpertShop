@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/admin.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <title>Admin Paneli</title>
+</head>
+<body>
+    <header>
+        <div id="ust-serit">
+            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop" height="50px" width="225px"></a>
+        </div>
+    </header>
+    <div class="serit"><h1>Admin paneli</h1></div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}"><p>{{ message }}</p></div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <main class="main-gku">
+        <!-- Ana içerik -->
+         <div id="main-panel">
+            <form action="{{ url_for('admin') }}" method="post">
+                <select name="action" id="action">
+                    <option value="banuser">Kullanıcı yasakla</option>
+                    <option value="deleteproduct">Ürün sil</option>
+                </select>
+                <input type="number" name="command" id="command" placeholder="Id">
+                <button type="submit">Gönder</button>
+            </form>
+         </div>
+        <div class="list" style="margin-top: 30px;">
+            <ul>
+                <h3>Kullanıcılar</h3>
+                {% for user in users %}
+                    <li><p>{{ user.username }}, {{ user.id }}</p></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="list">
+            <h3>Ürünler</h3>
+            <ul>
+                {% if products %}
+                    {% for product in products %}
+                        <li><p><a style="text-decoration: none;" href="{{ url_for('product_detail', product_id= product.id) }}">{{ product.name }}</a>, {{ product.id }}</p></li>
+                    {% endfor %}
+                {% else %}
+                    <p>Hiç ürün yüklenmedi.</p>
+                {% endif %}
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-top">
+            <div class="social-links">
+                <p>Bizimle iletişime geçin!</p>
+                <a href="mailto:talhaozc.2010@gmail.com" target="_blank"><i class='bx bx-envelope'></i> Mail</a>
+                <br>
+                <a href="https://www.instagram.com/talha.ozc22" target="_blank"><i class="bx bxl-instagram"></i> Instagram</a>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 ExpertShop. Tüm hakları gizlidir.</p>
+        </div>
+    </footer>
+</body>
+</html>
