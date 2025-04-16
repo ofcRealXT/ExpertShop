@@ -12,6 +12,7 @@ app.config['UPLOAD_FOLDER']= 'static/uploads'
 db = SQLAlchemy(app)
 
 image_extensions_allowed= {'png', 'jpg', 'jpeg'}
+commands= ["banuser", "banproduct"]
 category_fullnames= {
     "dekorasyon": "Ev & Dekorasyon",
     "elektronik": "Elektronik",
@@ -400,6 +401,46 @@ def register():
         flash("Kayıt başarılı! Giriş yapabilirsiniz.", "success")
         return redirect(url_for('login'))
     return render_template('register.html')
+
+# ----------------------------------------------------- Özel komutlar -----------------------------------------------------
+
+@app.route('/admin', methods=["GET", "POST"])
+def admin():
+    if "user_id" not in session:
+        flash("Giriş yapmalısınız!", "danger")
+        return redirect(url_for("login"))
+    user_id= session["user_id"]
+    user= User.query.filter_by(id= user_id).first()
+    if not user.username== "realxt":
+        flash("Bu sayfaya erişim izniniz yok!", "danger")
+        return redirect(url_for('home'))
+    users= User.query.all()
+    products= Product.query.all()
+    if request.method== "POST":
+        command= request.form.get("command")
+        action= request.form.get("action")
+        if action== "banuser":
+            user= User.query.get_or_404(command)
+            if user:
+                db.session.delete(user)
+                db.session.commit()
+                flash("Kullanıcı engellendi!", "success")
+                return redirect(url_for('admin'))
+            else:
+                flash("Bu kullanıcı yok!", "danger")
+                return redirect(url_for('admin'))
+        elif action== "deleteproduct":
+            product= Product.query.get_or_404(command)
+            if product:
+                db.session.delete(product)
+                db.session.commit()
+                flash("Ürün silindi!", "success")
+                return redirect(url_for('admin'))
+            else:
+                flash("Ürün bulunamadı!", "danger")
+                return redirect(url_for('admin'))
+    
+    return render_template("admin.html", users=users, products=products)    
 
 
 @app.route('/cikis')
