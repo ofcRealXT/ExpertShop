@@ -1,10 +1,13 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
 import os
 
+load_dotenv()
+
 app= Flask(__name__)
-app.secret_key= "itsmerealxt"
-app.config["SQLALCHEMY_DATABASE_URI"]= "postgresql://expertshop_datastore_user:LxbogiLzBx8tINa6mj9uDQrfCQjVOugQ@dpg-d01lrongi27c73eqmk4g-a.oregon-postgres.render.com/expertshop_datastore"
+app.secret_key= os.getenv()
+app.config["SQLALCHEMY_DATABASE_URI"]= os.getenv()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS']= False
 app.config['UPLOAD_FOLDER']= 'static/uploads'
 
