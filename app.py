@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+load_dotenv(dotenv_path="config.env")
 
 app= Flask(__name__)
 app.secret_key= os.getenv('SECRET_KEY')
@@ -15,7 +15,7 @@ app.config['UPLOAD_FOLDER']= 'static/uploads'
 db = SQLAlchemy(app)
 
 image_extensions_allowed= {'png', 'jpg', 'jpeg'}
-commands= ["banuser", "banproduct"]
+commands= ["banuser", "banproduct", "deleteall"]
 category_fullnames= {
     "dekorasyon": "Ev & Dekorasyon",
     "elektronik": "Elektronik",
@@ -26,6 +26,8 @@ category_fullnames= {
     "evcilhayvan": "Evcil Hayvan Ürünleri",
     "diger": "Diğer"
 }
+
+
 
 # ----------------------------------------------------- Sınıflar -----------------------------------------------------
 
@@ -409,7 +411,7 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html')
 
-# ----------------------------------------------------- Özel komutlar -----------------------------------------------------
+# ----------------------------------------------------- Adminlere özel komutlar -----------------------------------------------------
 
 @app.route('/admin', methods=["GET", "POST"])
 def admin():
@@ -426,36 +428,73 @@ def admin():
     comments= Comment.query.all()
 
     if request.method== "POST":
-        command= request.form.get("command")
+        command= request.form.get("command").lower()
         action= request.form.get("action")
         if action== "banuser":
-            user= User.query.get_or_404(command)
-            if user:
-                user_products= Product.query.filter_by(seller_id= user.id).all()
-                user_comments= Comment.query.filter_by(user_id= user.id).all()
-                
-                for user_comment in user_comments:
-                    db.session.delete(user_comment)
-
-                for user_product in user_products:
-                    db.session.delete(user_product)
-
-                db.session.delete(user)
-                db.session.commit()
-                flash("Kullanıcı engellendi!", "success")
+            user= User.query.get(command)
+            if not user:
+                flash(f"{command} id'sine sahip bir kullanıcı yok!", "danger")
                 return redirect(url_for('admin'))
-            else:
-                flash("Bu kullanıcı yok!", "danger")
-                return redirect(url_for('admin'))
+            
+            user_products= Product.query.filter_by(seller_id= user.id).all()
+            user_comments= Comment.query.filter_by(user_id= user.id).all()
+            
+            for user_comment in user_comments:
+                db.session.delete(user_comment)
+
+            for user_product in user_products:
+                db.session.delete(user_product)
+
+            db.session.delete(user)
+            db.session.commit()
+            flash("Kullanıcı engellendi!", "success")
+            return redirect(url_for('admin'))                
         elif action== "deleteproduct":
-            product= Product.query.get_or_404(command)
-            if product:
-                db.session.delete(product)
-                db.session.commit()
-                flash("Ürün silindi!", "success")
+            product= Product.query.get(command)
+            if not product:
+                flash(f"{command} sahip bir ürün yok!", "danger")
                 return redirect(url_for('admin'))
+            
+            db.session.delete(product)
+            db.session.commit()
+            flash("Ürün silindi!", "danger")
+            return redirect(url_for('admin'))
+        elif action== "deletecomment":
+            comment= Comment.query.get(command)
+            if not comment:
+                flash(f"{command} id'sine sahip bir yorum yok!", "danger")
+                return redirect(url_for('admin'))
+            
+            db.session.delete(comment)
+            db.session.commit()
+            flash("Yorum silindi!", "success")
+            return redirect(url_for('admin'))
+        else:
+            if command in ["products", "users", "comments"]:
+                if command=="products":
+                    for product in products:
+                        db.session.delete(product)
+                    db.session.commit()
+                    flash("Tüm ürünler silindi!", "success")
+                    return redirect(url_for('admin'))
+                elif command=="users":
+                    for user in users:
+                        for user_comment in user_comments:
+                            db.session.delete(user_comment)
+
+                        for user_product in user_products:
+                            db.session.delete(user_product)
+                        
+                        db.session.delete(user)
+                    db.session.commit()
+                    flash("Tüm kullanıcılar silindi!", "success")
+                else:
+                    for comment in comments:
+                        db.session.delete(comment)
+                    db.session.commit()
+                    flash("Tüm yorumlar silindi!", "success")
             else:
-                flash("Ürün bulunamadı!", "danger")
+                flash("Bu komut geçersiz", "danger")    
                 return redirect(url_for('admin'))
     
     return render_template("admin.html", users=users, products=products, comments=comments)    
