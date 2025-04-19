@@ -15,17 +15,16 @@
             <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop" height="50px" width="225px"></a>
         </div>
     </header>
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}"><p>{{ message }}</p></div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
     <main class="main-gku">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for category, message in messages %}
-                        <div class="flash-message {{ category }}"><p>{{ message }}</p></div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
         <div class="wrapper">
             <h1>Kayıt Ol</h1>
             <form action="{{ url_for('register') }}" method="post">
