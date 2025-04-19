@@ -17,6 +17,12 @@
     
     <main>
         <div class="serit"><h1>{{ query }} için sonuçlar</h1></div>
+        <div id="search-container">
+            <form  id="search-form" action="{{ url_for('search') }}" method="get">
+                <input id="search-box" type="search" name="search-box" id="search-box" placeholder="Arama yapın..">
+                <button type="submit" id="search-btn"><i class="bx bx-search"></i></button>
+            </form>            
+        </div>
         {% if products %}
             <div class="product-container">
                 {% for product in products %}
