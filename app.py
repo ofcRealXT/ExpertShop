@@ -4,7 +4,7 @@ import os
 
 app= Flask(__name__)
 app.secret_key= "itsmerealxt"
-app.config["SQLALCHEMY_DATABASE_URI"]= 'sqlite:///datastore.db'
+app.config["SQLALCHEMY_DATABASE_URI"]= "postgresql://expertshop_datastore_user:LxbogiLzBx8tINa6mj9uDQrfCQjVOugQ@dpg-d01lrongi27c73eqmk4g-a.oregon-postgres.render.com/expertshop_datastore"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS']= False
 app.config['UPLOAD_FOLDER']= 'static/uploads'
 
@@ -367,6 +367,10 @@ def add_comment():
     db.session.commit()
     return redirect(url_for('product_detail', product_id=product_id))
 
+# @app.route('/yorumsil/<int:comment_id>')
+# def delete_product(comment_id):
+#     return redirect(url_for('product_detail'))
+
 # ----------------------------------------------------- Giriş ve Kayıt -----------------------------------------------------
 
 @app.route('/giris', methods=['GET', 'POST'])
@@ -416,12 +420,23 @@ def admin():
         return redirect(url_for('home'))
     users= User.query.all()
     products= Product.query.all()
+    comments= Comment.query.all()
+
     if request.method== "POST":
         command= request.form.get("command")
         action= request.form.get("action")
         if action== "banuser":
             user= User.query.get_or_404(command)
             if user:
+                user_products= Product.query.filter_by(seller_id= user.id).all()
+                user_comments= Comment.query.filter_by(user_id= user.id).all()
+                
+                for user_comment in user_comments:
+                    db.session.delete(user_comment)
+
+                for user_product in user_products:
+                    db.session.delete(user_product)
+
                 db.session.delete(user)
                 db.session.commit()
                 flash("Kullanıcı engellendi!", "success")
@@ -440,16 +455,13 @@ def admin():
                 flash("Ürün bulunamadı!", "danger")
                 return redirect(url_for('admin'))
     
-    return render_template("admin.html", users=users, products=products)    
+    return render_template("admin.html", users=users, products=products, comments=comments)    
 
 
 @app.route('/cikis')
 def logout():
     session.pop('user_id', None)
     return redirect(url_for('home'))
-
-with app.app_context():
-    db.create_all()
 
 if __name__ == "__main__":
     app.run(debug=True)
