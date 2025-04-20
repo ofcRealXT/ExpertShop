@@ -15,7 +15,6 @@ app.config['UPLOAD_FOLDER']= 'static/uploads'
 db = SQLAlchemy(app)
 
 image_extensions_allowed= {'png', 'jpg', 'jpeg'}
-commands= ["banuser", "banproduct", "deleteall"]
 category_fullnames= {
     "dekorasyon": "Ev & Dekorasyon",
     "elektronik": "Elektronik",
@@ -386,6 +385,8 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and user.password == password:
             session['user_id']= user.id
+            if user.username== "realxt":
+                user.role= "admin"
             flash(f"Hoş geldiniz, {username}!", "success")
             return redirect(url_for('home'))
         flash("Kullanıcı adı veya şifre hatalı!", "danger")
@@ -420,7 +421,7 @@ def admin():
         return redirect(url_for("login"))
     user_id= session["user_id"]
     user= User.query.filter_by(id= user_id).first()
-    if not user.username== "realxt":
+    if user.role!= "admin":
         flash("Bu sayfaya erişim izniniz yok!", "danger")
         return redirect(url_for('home'))
     users= User.query.all()
@@ -469,6 +470,20 @@ def admin():
             db.session.commit()
             flash("Yorum silindi!", "success")
             return redirect(url_for('admin'))
+        elif action== "giveadminrole":
+            user= User.query.get(command)
+            if not user:
+                flash(f"{command} id'sine sahip bir kullanıcı yok!", "danger")
+                return redirect(url_for('admin'))
+            
+            if user.role== "admin":
+                flash(f"{user.username} zaten admin rolüne sahip", "success")
+                return redirect(url_for('admin'))
+            
+            user.role= "admin"
+            db.session.commit()
+            flash(f"{user.username} kullanıcısına admin rolü verildi! Rol: {user.role}", "success")
+            return redirect(url_for('admin'))
         else:
             if command in ["products", "users", "comments"]:
                 if command=="products":
@@ -479,12 +494,14 @@ def admin():
                     return redirect(url_for('admin'))
                 elif command=="users":
                     for user in users:
+                        if user.role== "admin":
+                            continue
                         for user_comment in user_comments:
                             db.session.delete(user_comment)
 
                         for user_product in user_products:
                             db.session.delete(user_product)
-                        
+
                         db.session.delete(user)
                     db.session.commit()
                     flash("Tüm kullanıcılar silindi!", "success")
@@ -504,6 +521,9 @@ def admin():
 def logout():
     session.pop('user_id', None)
     return redirect(url_for('home'))
+
+with app.app_context():
+    db.create_all()
 
 if __name__ == "__main__":
     app.run(debug=True)
