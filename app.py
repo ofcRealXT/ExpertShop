@@ -304,8 +304,9 @@ def delete_product(product_id):
         return redirect(url_for("home"))
     
     product= Product.query.get_or_404(product_id)
-    image_location= os.path.join(app.config['UPLOAD_FOLDER'], product.image)
-    os.remove(image_location)
+    if product.image:
+        image_location= os.path.join(app.config['UPLOAD_FOLDER'], product.image)
+        os.remove(image_location)
     
     Cart.query.filter_by(product_id=product.id).delete()
     
@@ -421,7 +422,7 @@ def admin():
         return redirect(url_for("login"))
     user_id= session["user_id"]
     user= User.query.filter_by(id= user_id).first()
-    if user.role!= "admin":
+    if user.role!= "admin" or user.username!="realxt":
         flash("Bu sayfaya erişim izniniz yok!", "danger")
         return redirect(url_for('home'))
     users= User.query.all()
@@ -482,7 +483,7 @@ def admin():
             
             user.role= "admin"
             db.session.commit()
-            flash(f"{user.username} kullanıcısına admin rolü verildi! Rol: {user.role}", "success")
+            flash(f"{user.username} kullanıcısına admin rolü verildi!", "success")
             return redirect(url_for('admin'))
         else:
             if command in ["products", "users", "comments"]:
