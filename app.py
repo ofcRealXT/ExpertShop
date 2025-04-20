@@ -406,8 +406,6 @@ def register():
         if User.query.filter_by(username=username).first():
             flash("Bu kullanıcı adı zaten alınmış!", "danger")
             return redirect(url_for('register'))
-        if user.username== "giganig":
-            role= "admin"
         user= User(username=username, password=password, role=role)
         db.session.add(user)
         db.session.commit()
