@@ -422,7 +422,7 @@ def admin():
         return redirect(url_for("login"))
     user_id= session["user_id"]
     user= User.query.filter_by(id= user_id).first()
-    if user.role!= "admin" or user.username!="realxt":
+    if user.username!= "realxt":
         flash("Bu sayfaya erişim izniniz yok!", "danger")
         return redirect(url_for('home'))
     users= User.query.all()
