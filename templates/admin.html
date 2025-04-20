@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/admin.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
     <title>Admin Paneli</title>
 </head>
 <body>
@@ -27,38 +28,52 @@
     {% endwith %}
     <main class="main-gku">
         <!-- Ana içerik -->
-         <div id="main-panel">
+        <div id="main-panel">
             <form action="{{ url_for('admin') }}" method="post">
-                <select name="action" id="action">
-                    <option value="banuser">Kullanıcı yasakla</option>
+                <select name="action" id="action" onchange="actionSelect()">
+                    <option value="banuser">Kullanıcı engelle</option>
                     <option value="deleteproduct">Ürün sil</option>
+                    <option value="deletecomment">Yorum sil</option>
+                    <option value="giveadminrole">Admin rolü ver</option>
+                    <option value="deleteall">Tüm içeriği sil</option>
                 </select>
-                <input type="number" name="command" id="command" placeholder="Id">
+                <input type="number" name="command" id="command" placeholder="User id" min="1">
                 <button type="submit">Gönder</button>
             </form>
-         </div>
-        <div class="list" style="margin-top: 30px;">
-            <ul>
-                <h3>Kullanıcılar</h3>
-                {% for user in users %}
-                    <li><p>{{ user.username }}, {{ user.id }}</p></li>
-                {% endfor %}
-            </ul>
-        </div>
-        <div class="list">
-            <h3>Ürünler</h3>
-            <ul>
-                {% if products %}
-                    {% for product in products %}
-                        <li><p><a style="text-decoration: none;" href="{{ url_for('product_detail', product_id= product.id) }}">{{ product.name }}</a>, {{ product.id }}</p></li>
-                    {% endfor %}
-                {% else %}
-                    <p>Hiç ürün yüklenmedi.</p>
-                {% endif %}
-            </ul>
         </div>
     </main>
-
+    <div class="list" style="margin-top: 30px;">
+        <ul>
+            <h3>Kullanıcılar</h3>
+            {% for user in users %}
+                <li><p>{{ user.username }}, {{ user.role }}, {{ user.id }}</p></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="list">
+        <h3>Ürünler</h3>
+        <ul>
+            {% if products %}
+                {% for product in products %}
+                    <li><p><a style="text-decoration: none;" href="{{ url_for('product_detail', product_id= product.id) }}">{{ product.name }}</a>, {{ product.id }}</p></li>
+                {% endfor %}
+            {% else %}
+                <p>Hiç ürün yüklenmedi.</p>
+            {% endif %}
+        </ul>
+    </div>
+    <div class="list">
+        <h3>Yorumlar</h3>
+        <ul>
+            {% if comments %}
+                {% for comment in comments %}
+                    <li><p><a style="text-decoration: none;" href="{{ url_for('product_detail', product_id= comment.product_id) }}">{{ comment.content }}</a>, {{ comment.id }}</p></li>
+                {% endfor %}
+            {% else %}
+                <p>Hiç yorum yapılmadı.</p>
+            {% endif %}
+        </ul>
+    </div>
     <footer>
         <div class="footer-top">
             <div class="social-links">
