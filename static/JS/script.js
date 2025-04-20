@@ -5,6 +5,9 @@ function actionSelect() {
     if (option.value=== "banuser") {
         command.type= "number";
         command.placeholder= "User id";
+    } else if (option.value=== "giveadminrole") {
+        command.type= "number";
+        command.placeholder= "User id"
     } else if (option.value=== "deleteproduct") {
         command.type= "number";
         command.placeholder= "Product id";
