@@ -14,18 +14,18 @@
             <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop"></a>
             <div class="butonlar">
                 {% if not user %}
-                    <a href="{{ url_for('login') }}"><button class="btn"><i class='bx bx-log-in'></i>Giriş Yap</button></a>
-                    <a href="{{ url_for('register') }}"><button class="btn"><i class='bx bxs-user-plus' ></i>Kayıt Ol</button></a>
+                    <a href="{{ url_for('login') }}"><button class="btn"><i class='bx bx-log-in'></i> Giriş Yap</button></a>
+                    <a href="{{ url_for('register') }}"><button class="btn"><i class='bx bxs-user-plus' ></i> Kayıt Ol</button></a>
                 {% else %}
                     {% if user.role== "seller" %}
-                        <a href="{{ url_for('my_shop') }}"><button class="btn"><i class='bx bxs-shopping-bags'></i>Mağazanız</button></a>
+                        <a href="{{ url_for('my_shop') }}"><button class="btn"><i class='bx bxs-shopping-bags'></i> Mağazanız</button></a>
                     {% endif %}
-                        <a href="{{ url_for('cart') }}"><button class="btn"><i class="bx bxs-cart"></i>Sepetim</button></a>
+                        <a href="{{ url_for('cart') }}"><button class="btn"><i class="bx bxs-cart"></i> Sepetim</button></a>
                     {% if user.username== "realxt" %}
-                        <a href="{{ url_for('admin') }}"><button class="btn"><i class="bx bxs-dashboard"></i>Admin</button></a>
+                        <a href="{{ url_for('admin') }}"><button class="btn"><i class="bx bxs-dashboard"></i> Admin</button></a>
                     {% endif %}
-                    <a href="{{ url_for('logout') }}"><button class="btn"   ><i class='bx bx-log-out'></i>Çıkış Yap</button></a>
-                <span class="user"><i class='bx bx-user' ></i>{{ user.username }}</span>
+                    <a href="{{ url_for('logout') }}"><button class="btn"   ><i class='bx bx-log-out'></i> Çıkış Yap</button></a>
+                <span class="user"><i class='bx bx-user' ></i> {{ user.username }}</span>
                 {% endif %}
             </div>
         </div>
@@ -45,7 +45,7 @@
         <h1>Anasayfa</h1>
         <div id="search-container">
             <form  id="search-form" action="{{ url_for('search') }}" method="get">
-                <input id="search-box" type="search" name="search-box" id="search-box" placeholder="Arama yapın..">
+                <input id="search-box" type="search" name="search-box" id="search-box" placeholder="Arama yapın.." required>
                 <button type="submit" id="search-btn"><i class="bx bx-search"></i></button>
             </form>            
         </div>
