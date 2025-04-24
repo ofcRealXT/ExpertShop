@@ -21,7 +21,7 @@
                         <a href="{{ url_for('my_shop') }}"><button class="btn"><i class='bx bxs-shopping-bags'></i> Mağazanız</button></a>
                     {% endif %}
                         <a href="{{ url_for('cart') }}"><button class="btn"><i class="bx bxs-cart"></i> Sepetim</button></a>
-                    {% if user.role== "admin" or user.username== "realxt" %}
+                    {% if user.role== "admin" or user.username=="realxt" %}
                         <a href="{{ url_for('admin') }}"><button class="btn"><i class="bx bxs-dashboard"></i> Admin</button></a>
                     {% endif %}
                     <a href="{{ url_for('logout') }}"><button class="btn"   ><i class='bx bx-log-out'></i> Çıkış Yap</button></a>
@@ -29,6 +29,24 @@
                 {% endif %}
             </div>
         </div>
+
+        <div class="butonlar-mobil">
+            {% if not user %}
+                <a href="{{ url_for('login') }}"><button class="btn"><i class='bx bx-log-in'></i> Giriş yap</button></a>
+                <a href="{{ url_for('register') }}"><button class="btn"><i class='bx bxs-user-plus'> Üye ol</i></button></a>
+            {% else %}
+                {% if user.role== "seller" %}
+                    <a href="{{ url_for('my_shop') }}"><button class="btn"><i class='bx bxs-shopping-bags'></i> Mağazanız</button></a>
+                {% endif %}
+                    <a href="{{ url_for('cart') }}"><button class="btn"><i class="bx bxs-cart"></i> Sepetim</button></a>
+                {% if user.role== "admin" %}
+                    <a href="{{ url_for('admin') }}"><button class="btn"><i class="bx bxs-dashboard"></i> Admin</button></a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}"><button class="btn"><i class='bx bx-log-out'></i> Çıkış yap</button></a>
+            <span class="user"><i class='bx bx-user' ></i> {{ user.username }}</span>
+            {% endif %}
+        </div>
+    </div>
     </header>
 
     <main>
@@ -51,13 +69,13 @@
         </div>
 
         <div class="categories">
-            <a href="{{ url_for('category', category_name= 'elektronik') }}"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/elektronik.jpg') }}"></a>
-            <a href="{{ url_for('category', category_name= 'dekorasyon') }}"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/dekorasyon.jpg') }}"></a>
-            <a href="{{ url_for('category', category_name= 'spor') }}"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/spor.jpg') }}"></a>
-            <a href="{{ url_for('category', category_name= 'giyim') }}"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/giyim.jpg') }}"></a>
-            <a href="{{ url_for('category', category_name= 'kitaplar') }}"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/kitaplar.jpg') }}"></a>
-            <a href="{{ url_for('category', category_name= 'kozmetik') }}"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/kozmetik.jpg') }}"></a>
-            <a href="{{ url_for('category', category_name= 'evcilhayvan') }}"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/pets.jpg') }}"></a>
+            <a href="{{ url_for('category', category_name= 'elektronik') }}" title="Elektronik"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/elektronik.jpg') }}"></a>
+            <a href="{{ url_for('category', category_name= 'dekorasyon') }}" title="Ev ve Dekorasyon"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/dekorasyon.jpg') }}"></a>
+            <a href="{{ url_for('category', category_name= 'spor') }}" title="Spor ve Outdoor"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/spor.jpg') }}"></a>
+            <a href="{{ url_for('category', category_name= 'giyim') }}" title="Giyim"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/giyim.jpg') }}"></a>
+            <a href="{{ url_for('category', category_name= 'kitaplar') }}" title="Kitap ve Kırtasiye"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/kitaplar.jpg') }}"></a>
+            <a href="{{ url_for('category', category_name= 'kozmetik') }}" title="Kişisel Bakım ve Kozmetik"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/kozmetik.jpg') }}"></a>
+            <a href="{{ url_for('category', category_name= 'evcilhayvan') }}" title="Evcil Hayvan Ürünleri"><img class="category-img" src="{{ url_for('static', filename='Images/Website_Images/pets.jpg') }}"></a>
         </div>
         
             <h2>Ürünler</h2>
@@ -67,7 +85,7 @@
                         <div class="product-card">
                             <img height="75px" src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.productname }}">
                             <h3>{{ product.name }}</h3>
-                            <p class="price">{{ product.price }} ₺</p>
+                            <p class="price" style="color: #760000;">{{ product.price }} ₺</p>
                             <a href="{{ url_for('product_detail', product_id= product.id) }}"><button class="btn">Detayları gör</button></a>
                         </div>
                     {% endfor %}
