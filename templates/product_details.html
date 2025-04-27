@@ -41,6 +41,23 @@
                 {% endif %}
             </div>
         </div>
+        <div id="detail-container-mobile">
+            <div id="product-image">
+                <img src="{{ url_for('static', filename='uploads/'+ product.image) }}" alt="{{ product.name }}" height="300px">
+            </div>
+            <div id="product-info">
+                <h1>{{ product.name }}</h1>
+                <p>{{ product.description }}</p>
+                <p style="color: #760000;">{{ product.price }} ₺</p>
+                {% if product.stocks!=0 %}
+                    <a href="{{ url_for('add_to_cart', product_id= product.id) }}"><button id="add-to-cart"><i class="bx bxs-cart"></i> Sepete Ekle</button></a>
+                {% else %}
+                    <p style="color: red;">Stokta yok!</p>
+                {% endif %}
+            </div>
+        </div>
+
+
         <div class="comments-container">
             <h2>Yorumlar</h2>
             {% if user %}
@@ -51,7 +68,7 @@
                     <button type="submit">Yorumu ekle</button>
                 </form>
             {% else %}
-                <p>Yorum eklemek için <a href="{{ url_for('login') }}">giriş </a>yapmalısınız.</p>
+                <p>Yorum eklemek için <a href="{{ url_for('login') }}"> giriş </a>yapmalısınız.</p>
             {% endif %}
                 {% if comments %}
                     {% for comment in comments %}
