@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/cart_shop.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/shopping.css') }}">
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <title>Sepetiniz</title>
 </head>
@@ -23,8 +23,8 @@
                 {% endfor %}
             </div>
         {% endif %}
-    {% endwith %}    
-    <main id="cart-main">
+    {% endwith %}
+    <main class="container-main">
         <div class="container">
             <h1><i class="bx bxs-cart"></i> Sepetim</h1>
     
@@ -69,18 +69,18 @@
                     </tbody>
                 </table>
             
-                <div id="cart-summary">
+                <div class="cart-summary">
                     <h3>Toplam: <span id="cart-total">{{ total_price }}</span>₺</h3>
-                    <div id="cart-buttons">
-                        <a href="{{ url_for('home') }}" id="continue-btn"><i class='bx bxs-shopping-bags' ></i> Alışverişe Devam Et</a>
-                        <a href="{{ url_for('empty_cart') }}" id="empty-btn"><i class="bx bx-trash"></i> Sepeti Boşalt</a>
-                        <a href="{{ url_for('complete_purchase') }}" id="checkout-btn"><i class='bx bx-credit-card'></i> Satın Al</a>
+                    <div class="cart-buttons">
+                        <a href="{{ url_for('home') }}" class="continue-btn"><i class='bx bxs-shopping-bags' ></i> Alışverişe Devam Et</a>
+                        <a href="{{ url_for('empty_cart') }}" class="empty-btn"><i class="bx bx-trash"></i> Sepeti Boşalt</a>
+                        <a href="{{ url_for('payment', total_price= total_price) }}" class="checkout-btn"><i class='bx bx-credit-card'></i> Satın Al</a>
                     </div>
                 </div>
     
             {% else %}
                 <p class="empty-cart"><i class="bx bxs-cart"></i> Sepetiniz boş! Alışverişe başlayın.</p>
-                <a href="{{ url_for('home') }}" id="continue-btn"><i class='bx bxs-shopping-bags' ></i> Alışverişe Başla</a>
+                <a href="{{ url_for('home') }}" class="continue-btn"><i class='bx bxs-shopping-bags' ></i> Alışverişe Başla</a>
             {% endif %}
         </div>
     </main>
