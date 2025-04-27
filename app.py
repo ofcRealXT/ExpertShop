@@ -395,10 +395,6 @@ def add_comment():
     db.session.commit()
     return redirect(url_for('product_detail', product_id=product_id))
 
-# @app.route('/yorumsil/<int:comment_id>')
-# def delete_product(comment_id):
-#     return redirect(url_for('product_detail'))
-
 # ----------------------------------------------------- Giriş ve Kayıt -----------------------------------------------------
 
 @app.route('/giris', methods=['GET', 'POST'])
@@ -409,8 +405,6 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and user.password == password:
             session['user_id']= user.id
-            if user.username== "realxt":
-                user.role= "admin"
             flash(f"Hoş geldiniz, {username}!", "success")
             return redirect(url_for('home'))
         flash("Kullanıcı adı veya şifre hatalı!", "danger")
