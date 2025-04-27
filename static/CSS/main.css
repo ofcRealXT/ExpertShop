@@ -269,6 +269,7 @@ option {
 .product-card {
     border: 1px solid #ddd;
     padding: 15px;
+    max-width: 5cm;
     border-radius: 8px;
     margin: 20px;
 }
