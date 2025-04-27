@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/shopping.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
+    <title>Ödeme</title>
+</head>
+<body>
+    <header>
+        <div id="ust-serit">
+            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop"></a>
+        </div>
+    </header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}"><p>{{ message }}</p></div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <main class="container-main">
+        <div class="container">
+            <form action="{{ url_for('payment') }}" method="post">
+                <h1><i class='bx bx-credit-card'></i> Ödemenizi tamamlayın</h1>
+                <h3>Toplam ödenecek tutar: {{ total_price }} ₺</h3>
+                <div id="contact-container">
+                    <p>İletişim bilgisi</p>
+                    <input type="email" name="contact-info" id="contact-info" placeholder="Mail" required>
+                </div>
+                <div id="card-info">
+                    <p>Kart bilgisi <span id="info-locations-i" onclick="showLocations()"><i class="bx bx-info-circle"></i></span></p>
+                    <input type="text" name="cardnumber" id="cardnumber" placeholder="Kart numarası" required>
+                    <div id="info-locations" onclick="hideLocations()"><img src="{{ url_for('static', filename='Images/Website_Images/kart.jpg') }}"></div>
+                    <input type="text" name="expirydate" id="expirydate" placeholder="AA/YY" required>
+                    <input type="text" name="cvc" id="cvc" placeholder="CVC" required>
+                </div>
+                <div class="cart-buttons">
+                    <button type="submit" class="checkout-btn"><i class="bx bx-credit-card"></i> Satın alımı bitir</button>
+                    <a href="{{ url_for('cart') }}" class="empty-btn"><i class="bx bx-trash"></i> İptal Et</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-top" style="margin-top: 150px;">
+            <div class="social-links">
+                <p>Bizimle iletişime geçin!</p>
+                <a href="mailto:talhaozc.2010@gmail.com" target="_blank"><i class='bx bx-envelope'></i> Mail</a>
+                <br>
+                <a href="https://www.instagram.com/talha.ozc22" target="_blank"><i class="bx bxl-instagram"></i> Instagram</a>
+            </div>
+        </div>
+        
+        <div class="footer-bottom"  >
+            <p>&copy; 2025 ExpertShop. Tüm hakları gizlidir.</p>
+        </div>
+    </footer>
+</body>
+</html>
