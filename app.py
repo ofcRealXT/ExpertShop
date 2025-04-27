@@ -153,6 +153,29 @@ def remove_from_cart(product_id):
     flash("Ürün sepetten silindi.", "success")
     return redirect(url_for("cart"))
 
+@app.route('/odemeyap', methods=["GET", "POST"])
+def payment():
+    if "user_id" not in session:
+        flash("Önce giriş yapmalısınız!", "danger")
+        return redirect(url_for("login"))
+    user_id= session["user_id"]
+    cart_products= Cart.query.filter_by(user_id= user_id)
+    total_price=0
+    for item in cart_products:
+        total_price+= item.product.price* item.quantity
+
+    if request.method== "POST":
+        cardnumber= request.form.get('cardnumber')
+        expiry_date= request.form.get('expirydate')
+        cvc= request.form.get('cvc')
+
+        if not cardnumber or not expiry_date or not cvc:
+            flash("Eksik giriş yaptınız!", "danger")
+            return redirect(url_for('payment'))
+
+        flash("Ödeme başarılı!", "success")
+        return redirect(url_for('complete_purchase'))
+    return render_template("payment.html", total_price=total_price)
 
 @app.route('/alisverisi_tamamla')
 def complete_purchase():
@@ -175,7 +198,7 @@ def complete_purchase():
             db.session.delete(item)
         db.session.commit()
 
-    return redirect(url_for("cart"))
+    return redirect(url_for('cart'))
 
 @app.route('/sepeti_bosalt')
 def empty_cart():
