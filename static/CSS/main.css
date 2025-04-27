@@ -68,9 +68,17 @@
     color: #fff;
 }
 
-p, a {
+p, a, label {
     font-family: "Poppins", sans-serif;
     color: black;
+}
+
+input::placeholder {
+    font-family: "Poppins", sans-serif;
+}
+
+button {
+    font-family: "Poppins", sans-serif;
 }
 
 .main-gku {
@@ -114,7 +122,7 @@ select {
 }
 
 
-select option {
+option {
     padding: 10px;
     background: #fff;
     color: #333;
