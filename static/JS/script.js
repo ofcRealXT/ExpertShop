@@ -19,3 +19,11 @@ function actionSelect() {
         command.placeholder= "Products, comments, users";
     }
   }
+
+function showLocations() {
+    document.getElementById('info-locations').style.display= "flex";
+}
+
+function hideLocations() {
+    document.getElementById('info-locations').style.display= "none";
+}
