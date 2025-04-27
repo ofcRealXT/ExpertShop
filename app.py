@@ -439,9 +439,11 @@ def admin():
         return redirect(url_for("login"))
     user_id= session["user_id"]
     user= User.query.filter_by(id= user_id).first()
-    if user.username!= "realxt":
+
+    if not user or user.role!= "admin" or user.username!="realxt":
         flash("Bu sayfaya erişim izniniz yok!", "danger")
         return redirect(url_for('home'))
+    
     users= User.query.all()
     products= Product.query.all()
     comments= Comment.query.all()
@@ -450,33 +452,39 @@ def admin():
         command= request.form.get("command").lower()
         action= request.form.get("action")
         if action== "banuser":
-            user= User.query.get(command)
-            if not user:
+            target_user= User.query.get(command)
+            if not target_user:
                 flash(f"{command} id'sine sahip bir kullanıcı yok!", "danger")
                 return redirect(url_for('admin'))
             
-            user_products= Product.query.filter_by(seller_id= user.id).all()
-            user_comments= Comment.query.filter_by(user_id= user.id).all()
+            user_products= Product.query.filter_by(seller_id= target_user.id).all()
+            user_comments= Comment.query.filter_by(user_id= target_user.id).all()
             
             for user_comment in user_comments:
                 db.session.delete(user_comment)
 
             for user_product in user_products:
+                cart_items= Cart.query.filter_by(product_id= user_product.id).all()
+                for item in cart_items:
+                    db.session.delete(item)
+                
                 db.session.delete(user_product)
 
-            db.session.delete(user)
+            db.session.delete(target_user)
             db.session.commit()
             flash("Kullanıcı engellendi!", "success")
             return redirect(url_for('admin'))                
         elif action== "deleteproduct":
-            product= Product.query.get(command)
-            if not product:
+            target_product= Product.query.get(command)
+            if not target_product:
                 flash(f"{command} sahip bir ürün yok!", "danger")
                 return redirect(url_for('admin'))
-            
-            db.session.delete(product)
+            cart_items= Cart.query.filter_by(product_id=target_product.id).all()
+            for item in cart_items:
+                db.session.delete(item)
+            db.session.delete(target_product)
             db.session.commit()
-            flash("Ürün silindi!", "danger")
+            flash("Ürün silindi!", "success")
             return redirect(url_for('admin'))
         elif action== "deletecomment":
             comment= Comment.query.get(command)
@@ -498,36 +506,51 @@ def admin():
                 flash(f"{user.username} zaten admin rolüne sahip", "success")
                 return redirect(url_for('admin'))
             
+            
             user.role= "admin"
+            user_products= Product.query.filter_by(seller_id= user.id).all()
             db.session.commit()
-            flash(f"{user.username} kullanıcısına admin rolü verildi!", "success")
+            flash(f"{user.username} kullanıcısına admin rolü verildi! Rol: {user.role}", "success")
             return redirect(url_for('admin'))
         else:
             if command in ["products", "users", "comments"]:
                 if command=="products":
                     for product in products:
+                        cart_items = Cart.query.filter_by(product_id=product.id).all()
+                        for item in cart_items:
+                            db.session.delete(item)
                         db.session.delete(product)
+
                     db.session.commit()
                     flash("Tüm ürünler silindi!", "success")
                     return redirect(url_for('admin'))
                 elif command=="users":
+                    users= User.query.all()
                     for user in users:
-                        if user.role== "admin":
+                        if user.role == "admin":
                             continue
+
+                        user_comments= Comment.query.filter_by(user_id=user.id).all()
                         for user_comment in user_comments:
                             db.session.delete(user_comment)
 
+                        user_products= Product.query.filter_by(seller_id=user.id).all()
                         for user_product in user_products:
+                            cart_items = Cart.query.filter_by(product_id=user_product.id).all()
+                            for item in cart_items:
+                                db.session.delete(item)
                             db.session.delete(user_product)
 
                         db.session.delete(user)
                     db.session.commit()
                     flash("Tüm kullanıcılar silindi!", "success")
+                    return redirect(url_for('admin'))
                 else:
                     for comment in comments:
                         db.session.delete(comment)
                     db.session.commit()
                     flash("Tüm yorumlar silindi!", "success")
+                    return redirect(url_for('admin'))
             else:
                 flash("Bu komut geçersiz", "danger")    
                 return redirect(url_for('admin'))
