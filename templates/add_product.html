@@ -36,12 +36,13 @@
                         <input type="file" name="product_img" id="product_img" placeholder="Ürün resmi" required>
                         <input type="number" name="product_price" id="product_price" min="10" placeholder="Ürün fiyatı" required>
                     </div>
+                    <input type="file" name="product_vid" id="product_vid" placeholder="Ürün videosu" accept="video/*">
                     <div>
                         <select name="product_category">
                             <option value="dekorasyon">Ev & Dekorasyon</option>
                             <option value="elektronik">Elektronik</option>
                             <option value="spor">Spor & Outdoor</option>
-                            <option value="clothes">Giyim</option>
+                            <option value="giyim">Giyim</option>
                             <option value="kitaplar">Kitap & Kırtasiye</option>
                             <option value="kozmetik">Kişisel bakım & Kozmetik</option>
                             <option value="evcilhayvan">Evcil Hayvan Ürünleri</option>
@@ -60,6 +61,8 @@
                 <a href="mailto:talhaozc.2010@gmail.com" target="_blank"><i class='bx bx-envelope'></i> Mail</a>
                 <br>
                 <a href="https://www.instagram.com/talha.ozc22" target="_blank"><i class="bx bxl-instagram"></i> Instagram</a>
+                <br>
+                <a href="{{ url_for('updates') }}"><i class='bx bxs-megaphone'></i> Güncellemeler</a>
             </div>
         </div>
         
