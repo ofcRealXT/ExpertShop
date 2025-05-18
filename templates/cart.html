@@ -15,6 +15,7 @@
             <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop"></a>
         </div>
     </header>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="flash-messages">
@@ -24,6 +25,7 @@
             </div>
         {% endif %}
     {% endwith %}
+    
     <main class="container-main">
         <div class="container">
             <h1><i class="bx bxs-cart"></i> Sepetim</h1>
@@ -44,7 +46,7 @@
                             <tr>
                                 <td>
                                     <div class="product-info">
-                                        <a href="{{ url_for('product_detail', product_id= item.product.id) }}"><img src="{{ url_for('static', filename='uploads/'+ item.product.image) }}" alt="{{ item.product.name }}"></a>
+                                        <a href="{{ url_for('product_detail', product_id= item.product.id) }}"><img src="{{ url_for('static', filename='uploads/images/'+ item.product.image) }}" alt="{{ item.product.name }}"></a>
                                         <p>{{ item.product.name }}</p>
                                     </div>
                                 </td>
@@ -92,6 +94,8 @@
                 <a href="mailto:talhaozc.2010@gmail.com" target="_blank"><i class='bx bx-envelope'></i> Mail</a>
                 <br>
                 <a href="https://www.instagram.com/talha.ozc22" target="_blank"><i class="bx bxl-instagram"></i> Instagram</a>
+                <br>
+                <a href="{{ url_for('updates') }}"><i class='bx bxs-megaphone'></i> Güncellemeler</a>
             </div>
         </div>
         
