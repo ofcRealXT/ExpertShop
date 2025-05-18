@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/update.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <title>Güncelleme Notları</title>
+</head>
+<body>
+    <header>
+        <div id="ust-serit">
+            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop"></a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}"><p>{{ message }}</p></div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main>
+        <div class="serit"><h1>Güncellemeler</h1></div>
+        {% if user.role=="admin" or user.role=="creator" %}
+            <a href="{{ url_for('add_update') }}"><button style="margin-top: 30px;" class="btn"><i class="bx bx-plus"></i> Güncelleme notu ekle</button></a>
+        {% endif %}
+
+        {% if updates %}
+            <div class="update-container">
+                {% for update in updates %}
+                    <div class="update-card-t1">
+                        <h2 style="text-align: center;">{{ update.title }}</h2>
+                        <p>{{ update.date }}</p>
+                        <p>{{ update.content }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+            {% else %}
+                <p style="text-align: center;">Bu sayfa yeni. Henüz hiç güncelleme notu yok.</p>
+        {% endif %}
+    </main>
+
+    <footer>
+        <div class="footer-top" style="margin-top: 150px;">
+            <div class="social-links">
+                <p>Bizimle iletişime geçin!</p>
+                <a href="mailto:talhaozc.2010@gmail.com" target="_blank"><i class='bx bx-envelope'></i> Mail</a>
+                <br>
+                <a href="https://www.instagram.com/talha.ozc22" target="_blank"><i class="bx bxl-instagram"></i> Instagram</a>
+                <br>
+                <a href="{{ url_for('updates') }}"><i class='bx bxs-megaphone'></i> Güncellemeler</a>
+            </div>
+        </div>
+        
+        <div class="footer-bottom"  >
+            <p>&copy; 2025 ExpertShop. Tüm hakları gizlidir.</p>
+        </div>
+    </footer>
+</body>
+</html>
