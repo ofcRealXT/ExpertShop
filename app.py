@@ -3,11 +3,14 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from utils import turkce_format
+from dotenv import load_dotenv
 import os
 
+load_dotenv()
+
 app= Flask(__name__)
-app.secret_key= 'itsmerealxt'
-app.config["SQLALCHEMY_DATABASE_URI"]= 'sqlite:///datastore.db'
+app.secret_key= os.getenv('SECRET_KEY')
+app.config["SQLALCHEMY_DATABASE_URI"]= os.getenv('DATABASE_URL')
 app.config['IMAGE_UPLOAD_FOLDER']= 'static/uploads/images'
 app.config['VIDEO_UPLOAD_FOLDER']= 'static/uploads/videos'
 
@@ -639,9 +642,6 @@ def admin():
                 return redirect(url_for('admin'))
     
     return render_template("admin.html", users=users, products=products, comments=comments)
-
-with app.app_context():
-    db.create_all()
 
 if __name__ == "__main__":
     #app.run(debug=True)
