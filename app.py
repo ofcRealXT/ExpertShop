@@ -1,20 +1,21 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
-from dotenv import load_dotenv
+from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import datetime
+from utils import turkce_format
 import os
 
-load_dotenv(dotenv_path="config.env")
-
 app= Flask(__name__)
-app.secret_key= os.getenv('SECRET_KEY')
-app.config["SQLALCHEMY_DATABASE_URI"]= os.getenv('DATABASE_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS']= False
-app.config['UPLOAD_FOLDER']= 'static/uploads'
+app.secret_key= 'itsmerealxt'
+app.config["SQLALCHEMY_DATABASE_URI"]= 'sqlite:///datastore.db'
+app.config['IMAGE_UPLOAD_FOLDER']= 'static/uploads/images'
+app.config['VIDEO_UPLOAD_FOLDER']= 'static/uploads/videos'
 
 
 db = SQLAlchemy(app)
 
 image_extensions_allowed= {'png', 'jpg', 'jpeg'}
+video_extensions_allowed= {'mp4', 'avi', 'mov', 'webm'}
 category_fullnames= {
     "dekorasyon": "Ev & Dekorasyon",
     "elektronik": "Elektronik",
@@ -25,7 +26,6 @@ category_fullnames= {
     "evcilhayvan": "Evcil Hayvan Ürünleri",
     "diger": "Diğer"
 }
-
 
 
 # ----------------------------------------------------- Sınıflar -----------------------------------------------------
@@ -44,10 +44,11 @@ class Product(db.Model):
     category_id= db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     seller_id= db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     image= db.Column(db.String, nullable=True)
+    video= db.Column(db.String, nullable=True)
     sales= db.Column(db.Integer, nullable=False, default=0)
     total_earnings= db.Column(db.Float, nullable=False, default=0)
     stocks= db.Column(db.Integer, nullable=False, default=10)
-    
+
     comments= db.relationship('Comment', backref="product", cascade="all, delete-orphan", lazy=True)
 
 class Category(db.Model):
@@ -70,8 +71,15 @@ class Comment(db.Model):
     user_id= db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id= db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     content= db.Column(db.String(300), nullable=False)
+    created_at= db.Column(db.String, nullable=False)
 
     user = db.relationship("User", backref="comments", lazy=True)
+
+class Update(db.Model):
+    id= db.Column(db.Integer, primary_key=True)
+    title= db.Column(db.String, nullable=False)
+    date= db.Column(db.String, nullable=False)
+    content= db.Column(db.String(500), nullable=False)
 
 # ----------------------------------------------------- Anasayfa -----------------------------------------------------
 
@@ -94,17 +102,17 @@ def search():
 
 @app.route('/kategori/<string:category_name>')
 def category(category_name):
-    category = Category.query.filter_by(name=category_name).first()
+    category= Category.query.filter_by(name=category_name).first()
     if not category:
-        category = Category(name=category_name)
+        category= Category(name=category_name)
         db.session.add(category)
         db.session.commit()
 
-    category_fullname = category_fullnames.get(category_name, category_name.capitalize())
-    products = Product.query.filter_by(category_id=category.id).all()
+    category_fullname= category_fullnames[category_name]
+    products= Product.query.filter_by(category_id=category.id).all()
     return render_template('category_filter.html', category_name=category_name, category_fullname=category_fullname, products=products)
 
-# ----------------------------------------------------- Sepet -----------------------------------------------------
+# ----------------------------------------------------- Alışveriş -----------------------------------------------------
 
 @app.route('/sepet')
 def cart():
@@ -153,52 +161,6 @@ def remove_from_cart(product_id):
     flash("Ürün sepetten silindi.", "success")
     return redirect(url_for("cart"))
 
-@app.route('/odemeyap', methods=["GET", "POST"])
-def payment():
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
-    user_id= session["user_id"]
-    cart_products= Cart.query.filter_by(user_id= user_id)
-    total_price=0
-    for item in cart_products:
-        total_price+= item.product.price* item.quantity
-
-    if request.method== "POST":
-        cardnumber= request.form.get('cardnumber')
-        expiry_date= request.form.get('expirydate')
-        cvc= request.form.get('cvc')
-
-        if not cardnumber or not expiry_date or not cvc:
-            flash("Eksik giriş yaptınız!", "danger")
-            return redirect(url_for('payment'))
-
-        flash("Ödeme başarılı!", "success")
-        return redirect(url_for('complete_purchase'))
-    return render_template("payment.html", total_price=total_price)
-
-@app.route('/alisverisi_tamamla')
-def complete_purchase():
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
-    user_id= session["user_id"]
-    cart_products= Cart.query.filter_by(user_id=user_id).all()
-
-    if not cart_products:
-        flash("Sepetiniz boş!", "danger")
-        return redirect(url_for("cart"))
-    
-    for item in cart_products:
-        product= Product.query.get(item.product_id)
-        if product:
-            product.sales+= item.quantity
-            product.total_earnings+= item.quantity* product.price
-            product.stocks-= item.quantity
-            db.session.delete(item)
-        db.session.commit()
-
-    return redirect(url_for('cart'))
 
 @app.route('/sepeti_bosalt')
 def empty_cart():
@@ -248,6 +210,55 @@ def increase_quantity(product_id):
     db.session.commit()
     return redirect(url_for("cart"))
 
+# ----------------------------------------------------- Ödeme -----------------------------------------------------
+
+@app.route('/odemeyap', methods=["GET", "POST"])
+def payment():
+    if "user_id" not in session:
+        flash("Önce giriş yapmalısınız!", "danger")
+        return redirect(url_for("login"))
+    user_id= session["user_id"]
+    cart_products= Cart.query.filter_by(user_id= user_id)
+    total_price=0
+    for item in cart_products:
+        total_price+= item.product.price* item.quantity
+
+    if request.method== "POST":
+        cardnumber= request.form.get('cardnumber')
+        expiry_date= request.form.get('expirydate')
+        cvc= request.form.get('cvc')
+
+        if not cardnumber or not expiry_date or not cvc:
+            flash("Eksik giriş yaptınız!", "danger")
+            return redirect(url_for('payment'))
+
+        flash("Ödeme başarılı!", "success")
+        return redirect(url_for('complete_purchase'))
+    return render_template("payment.html", total_price=total_price)
+
+@app.route('/alisverisi_tamamla')
+def complete_purchase():
+    if "user_id" not in session:
+        flash("Önce giriş yapmalısınız!", "danger")
+        return redirect(url_for("login"))
+    user_id= session["user_id"]
+    cart_products= Cart.query.filter_by(user_id=user_id).all()
+
+    if not cart_products:
+        flash("Sepetiniz boş!", "danger")
+        return redirect(url_for("cart"))
+    
+    for item in cart_products:
+        product= Product.query.get(item.product_id)
+        if product:
+            product.sales+= item.quantity
+            product.total_earnings+= item.quantity* product.price
+            product.stocks-= item.quantity
+            db.session.delete(item)
+        db.session.commit()
+
+    return redirect(url_for('cart'))
+
 # ----------------------------------------------------- Ürünler -----------------------------------------------------
 
 @app.route('/urun_ekle', methods=["GET", "POST"])
@@ -255,17 +266,18 @@ def add_product():
     if "user_id" not in session:
         flash("Önce giriş yapmalısınız!", "danger")
         return redirect(url_for('login'))
-    
+
     user = User.query.get(session['user_id'])
     if not user or user.role != "seller":
         flash("Bu sayfaya erişim izniniz yok!", "danger")
         return redirect(url_for("home"))
-    
+
     if request.method== "POST":
         name= request.form.get("product_name")
         description= request.form.get("product_desc")
         price= request.form.get("product_price")
         image= request.files.get("product_img")
+        video= request.files.get("product_vid")
         category_name= request.form.get("product_category")
 
         category= Category.query.filter_by(name=category_name).first()
@@ -276,15 +288,15 @@ def add_product():
         if not name or not description or not price:
             flash("Form'daki tüm alanları doldurun!", "danger")
             return redirect(url_for("add_product"))
-        
+
         price= float(price)
-        
+
         product= Product(name= name,
         description=description,
         category_id=category.id,
         price=price,
         seller_id= user.id)
-        
+
         db.session.add(product)
         db.session.commit()
 
@@ -293,8 +305,22 @@ def add_product():
             file_ext= image.filename.rsplit('.', 1)[-1].lower()
             if file_ext in image_extensions_allowed:
                 image_filename= f"{product.id}.{file_ext}"
-                image.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
+                image.save(os.path.join(app.config['IMAGE_UPLOAD_FOLDER'], image_filename))
                 product.image= image_filename
+                db.session.commit()
+            else:
+                flash("Bu uzantı uygun değil!", "danger")
+                db.session.delete(product)
+                db.session.commit()
+                return redirect(url_for("add_product"))
+
+        video_filename= None
+        if video:
+            file_ext= video.filename.rsplit('.', 1)[-1].lower()
+            if file_ext in video_extensions_allowed:
+                video_filename= f"{product.id}.{file_ext}"
+                video.save(os.path.join(app.config['VIDEO_UPLOAD_FOLDER'], video_filename))
+                product.video= video_filename
                 db.session.commit()
             else:
                 flash("Bu uzantı uygun değil!", "danger")
@@ -322,6 +348,7 @@ def delete_product(product_id):
         flash("Önce giriş yapmalısınız!", "danger")
         return redirect(url_for('login'))
     user= User.query.get(session['user_id'])
+
     if not user or user.role!= "seller":
         flash("Bu sayfaya erişim izniniz yok!", "danger")
         return redirect(url_for("home"))
@@ -343,6 +370,7 @@ def my_shop():
     if "user_id" not in session:
         flash("Önce giriş yapmalısınız!", "danger")
         return redirect(url_for('login'))
+    
     user= User.query.get(session['user_id'])
     if not user or user.role!= "seller":
         flash("Bu sayfaya erişim izniniz yok!", "danger")
@@ -350,7 +378,7 @@ def my_shop():
     
     products= Product.query.filter_by(seller_id=session['user_id']).all()
     total_revenue= sum([product.total_earnings for product in products])
-    return render_template("my_shop.html", products=products, total_revenue=total_revenue)
+    return render_template("dashboard.html", products=products, total_revenue=total_revenue)
 
 
 @app.route('/stok_arttir/<int:product_id>')
@@ -370,6 +398,7 @@ def decrease_quantity_stocks(product_id):
     if "user_id" not in session:
         flash("Önce giriş yapmalısınız!", "danger")
         return redirect(url_for("login"))
+    
     user_id= session["user_id"]
     product= Product.query.filter_by(seller_id=user_id, id=product_id).first()
 
@@ -385,15 +414,59 @@ def add_comment():
     product_id= request.form.get("product_id")
 
     content= request.form.get("add-comment")
+
+    created_at= turkce_format(datetime.now())
+
     comment= Comment(
         user_id= user_id,
         product_id= product_id,
-        content= content
+        content= content,
+        created_at=created_at
     )
     
     db.session.add(comment)
     db.session.commit()
     return redirect(url_for('product_detail', product_id=product_id))
+
+# ----------------------------------------------------- Güncellemeler -----------------------------------------------------
+
+@app.route('/guncellemeler')
+def updates():
+    user=None
+    if "user_id" in session:
+        user= User.query.get(session["user_id"])
+    
+    updates= Update.query.all()
+
+    return render_template("update.html", user=user, updates=updates)
+
+@app.route('/guncelleme_ekle', methods=["GET", "POST"])
+def add_update():
+    if "user_id" not in session:
+        flash("Önce giriş yapmalısınız!", "danger")
+        return redirect(url_for('giris'))
+    
+    user= User.query.get(session["user_id"])
+    if user.role=="user" or user.role=="seller":
+        flash("Bu sayfaya erişim izniniz yok!", "danger")
+        return(redirect(url_for('updates')))
+
+    if request.method== "POST":
+        content= request.form.get("update_content")
+        title= request.form.get("update_title")
+        date= turkce_format(datetime.now())
+        new_update= Update(
+            title=title,
+            date= date,
+            content=content
+        )
+
+        db.session.add(new_update)
+        db.session.commit()
+        flash("Güncelleme notu eklendi!", "success")
+        return redirect(url_for('updates'))
+
+    return render_template("add_update.html")
 
 # ----------------------------------------------------- Giriş ve Kayıt -----------------------------------------------------
 
@@ -403,7 +476,7 @@ def login():
         username= request.form['username']
         password= request.form['password']
         user = User.query.filter_by(username=username).first()
-        if user and user.password == password:
+        if user and check_password_hash(user.password, password):
             session['user_id']= user.id
             flash(f"Hoş geldiniz, {username}!", "success")
             return redirect(url_for('home'))
@@ -420,17 +493,27 @@ def register():
         if not username or not password or not role:
             flash("Kullanıcı adı veya şifre boş olamaz!", "danger")
             return redirect(url_for("register"))
+        
         if User.query.filter_by(username=username).first():
             flash("Bu kullanıcı adı zaten alınmış!", "danger")
             return redirect(url_for('register'))
-        user= User(username=username, password=password, role=role)
+        
+        # Şifre güvenliği
+        hashed_password= generate_password_hash(password)
+
+        user= User(username=username, password=hashed_password, role=role)
         db.session.add(user)
         db.session.commit()
         flash("Kayıt başarılı! Giriş yapabilirsiniz.", "success")
         return redirect(url_for('login'))
     return render_template('register.html')
 
-# ----------------------------------------------------- Adminlere özel komutlar -----------------------------------------------------
+@app.route('/cikis')
+def logout():
+    session.pop('user_id', None)
+    return redirect(url_for('home'))
+
+# ----------------------------------------------------- Özel komutlar -----------------------------------------------------
 
 @app.route('/admin', methods=["GET", "POST"])
 def admin():
@@ -440,10 +523,10 @@ def admin():
     user_id= session["user_id"]
     user= User.query.filter_by(id= user_id).first()
 
-    if not user or user.role!= "admin" or user.username!="realxt":
-        flash("Bu sayfaya erişim izniniz yok!", "danger")
+    if not user or user.role== "seler" or user.role=="user":
+        flash(f"Bu sayfaya erişim izniniz yok! Şu anki rolünüz: {user.role}", "danger")
         return redirect(url_for('home'))
-    
+
     users= User.query.all()
     products= Product.query.all()
     comments= Comment.query.all()
@@ -467,7 +550,7 @@ def admin():
                 cart_items= Cart.query.filter_by(product_id= user_product.id).all()
                 for item in cart_items:
                     db.session.delete(item)
-                
+
                 db.session.delete(user_product)
 
             db.session.delete(target_user)
@@ -529,7 +612,7 @@ def admin():
                     for user in users:
                         if user.role == "admin":
                             continue
-
+                            
                         user_comments= Comment.query.filter_by(user_id=user.id).all()
                         for user_comment in user_comments:
                             db.session.delete(user_comment)
@@ -555,13 +638,11 @@ def admin():
                 flash("Bu komut geçersiz", "danger")    
                 return redirect(url_for('admin'))
     
-    return render_template("admin.html", users=users, products=products, comments=comments)    
+    return render_template("admin.html", users=users, products=products, comments=comments)
 
-
-@app.route('/cikis')
-def logout():
-    session.pop('user_id', None)
-    return redirect(url_for('home'))
+with app.app_context():
+    db.create_all()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    #app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True) # Aynı ip'deki cihazların girebilmesi için
