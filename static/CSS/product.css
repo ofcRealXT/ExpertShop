@@ -65,9 +65,23 @@
     margin: 10px;
 }
 
-#product-image img {
+#product-image img, #product-image video {
     border: 1px solid #ccc;
     border-radius: 5px;
+}
+
+#product-image button {
+    background: #ddd;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 18px;
+    text-decoration: none;
+}
+
+#image-change-buttons {
+    display: flex;
+    justify-content: space-between;
 }
 
 #product-info {
