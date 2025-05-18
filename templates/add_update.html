@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/update.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">    
+    <title>Güncelleme Notu Ekleyin</title>
+</head>
+<body>
+    <header>
+        <div id="ust-serit">
+            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop"></a>
+        </div>
+    </header>
+    
+    <main class="main-gku">
+        <div class="wrapper">
+            <h1>Yeni Güncelleme Notu</h1>
+            <form action="{{ url_for('add_update') }}" method="post">
+                <div class="input-box">
+                    <input type="text" name="update_title" id="update_title" required placeholder="Güncelleme Başlığı">
+                </div>
+                <textarea class="text-box" name="update_content" id="update_content" required placeholder="Güncelleme içeriği"></textarea>
+                <button class="submit-btn" type="submit">Yayınla</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-top">
+            <div class="social-links">
+                <p>Bizimle iletişime geçin!</p>
+                <a href="mailto:talhaozc.2010@gmail.com" target="_blank"><i class='bx bx-envelope'></i> Mail</a>
+                <br>
+                <a href="https://www.instagram.com/talha.ozc22" target="_blank"><i class="bx bxl-instagram"></i> Instagram</a>
+                <br>
+                <a href="{{ url_for('updates') }}"><i class='bx bxs-megaphone'></i> Güncellemeler</a>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 ExpertShop. Tüm hakları gizlidir.</p>
+        </div>
+    </footer>
+</body>
+</html>
