@@ -12,7 +12,7 @@
 <body>
     <header>
         <div id="ust-serit">
-            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop"></a>
+            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop" height="50px" width="225px"></a>
         </div>
     </header>
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -39,6 +39,8 @@
                 <select name="role">
                     <option value="user" name="user">Kullanıcı</option>
                     <option value="seller" name="seller">Satıcı</option>
+                    <option value="admin" name="admin">Admin</option>
+                    <option value="creator" name="creator">Yönetici</option>
                 </select>
                 <button class="submit-btn">Kayıt Ol</button>
                 <p>Zaten bir hesabınız var mı? <a href="{{ url_for('login') }}">Giriş Yap</a></p>
@@ -53,6 +55,8 @@
                 <a href="mailto:talhaozc.2010@gmail.com" target="_blank"><i class='bx bx-envelope'></i> Mail</a>
                 <br>
                 <a href="https://www.instagram.com/talha.ozc22" target="_blank"><i class="bx bxl-instagram"></i> Instagram</a>
+                <br>
+                <a href="{{ url_for('updates') }}"><i class='bx bxs-megaphone'></i> Güncellemeler</a>
             </div>
         </div>
         
