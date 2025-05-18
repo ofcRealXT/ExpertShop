@@ -268,8 +268,8 @@ option {
 
 .product-card {
     border: 1px solid #ddd;
+    max-width: 200px;
     padding: 15px;
-    max-width: 5cm;
     border-radius: 8px;
     margin: 20px;
 }
@@ -292,7 +292,6 @@ footer p {
 
 .footer-top {
     background-color: #760000;
-    text-align: start   ;
     padding: 20px 0;
 }
 
