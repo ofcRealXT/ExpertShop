@@ -27,3 +27,15 @@ function showLocations() {
 function hideLocations() {
     document.getElementById('info-locations').style.display= "none";
 }
+
+function changeImage() {
+    let img= document.getElementById('product-img')
+    let vid= document.getElementById('product-vid')
+    if (img.style.display== "none") {
+        img.style.display= "flex";
+        vid.style.display= "none";
+    } else {
+        img.style.display= "none";
+        vid.style.display= "flex";        
+    }
+}
