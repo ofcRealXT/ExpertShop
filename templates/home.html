@@ -21,7 +21,7 @@
                         <a href="{{ url_for('my_shop') }}"><button class="btn"><i class='bx bxs-shopping-bags'></i> Mağazanız</button></a>
                     {% endif %}
                         <a href="{{ url_for('cart') }}"><button class="btn"><i class="bx bxs-cart"></i> Sepetim</button></a>
-                    {% if user.role== "admin" or user.username=="realxt" %}
+                    {% if user.role== "admin" or user.role=="creator" %}
                         <a href="{{ url_for('admin') }}"><button class="btn"><i class="bx bxs-dashboard"></i> Admin</button></a>
                     {% endif %}
                     <a href="{{ url_for('logout') }}"><button class="btn"   ><i class='bx bx-log-out'></i> Çıkış Yap</button></a>
@@ -83,7 +83,7 @@
                 {% if products %}
                     {% for product in products %}
                         <div class="product-card">
-                            <img height="75px" src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.productname }}">
+                            <img height="75px" src="{{ url_for('static', filename='uploads/images/' + product.image) }}" alt="{{ product.productname }}">
                             <h3>{{ product.name }}</h3>
                             <p class="price" style="color: #760000;">{{ product.price }} ₺</p>
                             <a href="{{ url_for('product_detail', product_id= product.id) }}"><button class="btn">Detayları gör</button></a>
@@ -102,6 +102,8 @@
                 <a href="mailto:talhaozc.2010@gmail.com" target="_blank"><i class='bx bx-envelope'></i> Mail</a>
                 <br>
                 <a href="https://www.instagram.com/talha.ozc22" target="_blank"><i class="bx bxl-instagram"></i> Instagram</a>
+                <br>
+                <a href="{{ url_for('updates') }}"><i class='bx bxs-megaphone'></i> Güncellemeler</a>
             </div>
         </div>
         
