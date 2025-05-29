@@ -6,6 +6,7 @@
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/lgn_rgs.css') }}">
+    <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <title>Kayıt Ol</title>
 </head>
@@ -24,10 +25,19 @@
             </div>
         {% endif %}
     {% endwith %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            hideFlashMessages(3000);
+        });
+    </script>
     <main class="main-gku">
         <div class="wrapper">
             <h1>Kayıt Ol</h1>
             <form action="{{ url_for('register') }}" method="post">
+                <div class="input-box">
+                    <input type="email" name="email" id="email" placeholder="E-Mail" required>
+                    <i class="bx bx-envelope"></i>
+                </div>
                 <div class="input-box">
                     <input type="text" name="username" id="username" placeholder="Kullanıcı adı" required><br>
                     <i class='bx bx-user'></i>
