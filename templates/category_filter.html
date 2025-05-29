@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
+    <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <title>{{ category_fullname }}</title>
@@ -25,6 +26,12 @@
                 </div>
             {% endif %}
         {% endwith %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                hideFlashMessages(3000);
+            });
+        </script>
+
         <div class="serit"><h1>{{ category_fullname }}</h1></div>
         <div class="product-container">
             {% for product in products %}
