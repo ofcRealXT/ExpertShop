@@ -39,3 +39,19 @@ function changeImage() {
         vid.style.display= "flex";        
     }
 }
+
+function hideFlashMessages(timeout = 3000) {
+    const flashMessages = document.getElementsByClassName('flash-message');
+    for (let i = 0; i < flashMessages.length; i++) {
+        const message = flashMessages[i];
+        setTimeout(function() {
+            message.style.transition = 'opacity 0.5s ease';
+            message.style.opacity = '0';
+            setTimeout(() => {
+                if (message.parentNode) {
+                    message.parentNode.removeChild(message);
+                }
+            }, 500);
+        }, timeout);
+    }
+}
