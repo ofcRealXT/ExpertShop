@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/shopping.css') }}">
+    <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
@@ -25,6 +26,11 @@
             </div>
         {% endif %}
     {% endwith %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            hideFlashMessages(3000);
+        });
+    </script>
     <main class="container-main">
         <div class="container">
             <form action="{{ url_for('payment') }}" method="post">
