@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail, Message
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required, UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from utils import turkce_format
 from dotenv import load_dotenv
-import os
+import os, time, random
 
 load_dotenv()
 
@@ -14,6 +16,19 @@ app.config["SQLALCHEMY_DATABASE_URI"]= os.getenv('DATABASE_URL')
 app.config['IMAGE_UPLOAD_FOLDER']= 'static/uploads/images'
 app.config['VIDEO_UPLOAD_FOLDER']= 'static/uploads/videos'
 
+app.config["MAIL_SERVER"]= 'smtp.gmail.com'
+app.config["MAIL_PORT"]= 587
+app.config["MAIL_USE_TLS"]= True
+app.config["MAIL_USERNAME"]= 'app.expertshop@gmail.com'
+app.config["MAIL_PASSWORD"]= os.getenv('MAIL_PASSWORD')
+mail= Mail(app)
+
+login_manager= LoginManager()
+login_manager.init_app(app)
+login_manager.login_view= 'login'
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 db = SQLAlchemy(app)
 
@@ -33,9 +48,10 @@ category_fullnames= {
 
 # ----------------------------------------------------- Sınıflar -----------------------------------------------------
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id= db.Column(db.Integer, primary_key=True)
     username= db.Column(db.String, unique=True, nullable=False)
+    email= db.Column(db.String, nullable=False)
     password= db.Column(db.String, nullable=False)
     role= db.Column(db.String, default="user")
 
@@ -76,7 +92,7 @@ class Comment(db.Model):
     content= db.Column(db.String(300), nullable=False)
     created_at= db.Column(db.String, nullable=False)
 
-    user = db.relationship("User", backref="comments", lazy=True)
+    user= db.relationship("User", backref="comments", lazy=True)
 
 class Update(db.Model):
     id= db.Column(db.Integer, primary_key=True)
@@ -89,8 +105,8 @@ class Update(db.Model):
 @app.route('/')
 def home():
     user= None
-    if 'user_id' in session:
-        user= User.query.get(session['user_id'])
+    if current_user.is_authenticated:
+        user= User.query.get(current_user.id)
     products= Product.query.all()
     return render_template("home.html", user=user, products=products)
 
@@ -118,13 +134,9 @@ def category(category_name):
 # ----------------------------------------------------- Alışveriş -----------------------------------------------------
 
 @app.route('/sepet')
+@login_required
 def cart():
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
-    
-    user_id= session["user_id"]
-    cart_products= Cart.query.filter_by(user_id=user_id).all()
+    cart_products= Cart.query.filter_by(user_id=current_user.id).all()
 
     total_price= 0
     for item in cart_products:
@@ -133,12 +145,9 @@ def cart():
     return render_template("cart.html", cart_products=cart_products, total_price=total_price)
 
 @app.route('/sepete_ekle/<int:product_id>')
+@login_required
 def add_to_cart(product_id):
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
-    
-    user_id= session["user_id"]
+    user_id= current_user.id
     cart_product= Cart.query.filter_by(user_id=user_id, product_id=product_id).first()
     if cart_product:
         cart_product.quantity+=1
@@ -151,13 +160,9 @@ def add_to_cart(product_id):
     return redirect(url_for("cart"))
 
 @app.route('/sepetten_sil/<int:product_id>')
+@login_required
 def remove_from_cart(product_id):
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
-    
-    user_id= session["user_id"]
-    cart_product= Cart.query.filter_by(user_id=user_id, product_id=product_id).first()
+    cart_product= Cart.query.filter_by(user_id=current_user.id, product_id=product_id).first()
     db.session.delete(cart_product)
     db.session.commit()
 
@@ -166,12 +171,9 @@ def remove_from_cart(product_id):
 
 
 @app.route('/sepeti_bosalt')
+@login_required
 def empty_cart():
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
-    user_id= session["user_id"]
-    cart_products= Cart.query.filter_by(user_id=user_id).all()
+    cart_products= Cart.query.filter_by(user_id=current_user.id).all()
 
     if not cart_products:
         flash("Sepetiniz boş!", "danger")
@@ -183,13 +185,9 @@ def empty_cart():
     return redirect(url_for('cart'))
 
 @app.route('/urunsayisi_azalt/<int:product_id>')
+@login_required
 def decrease_quantity(product_id):
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
-    
-    user_id= session["user_id"]
-    cart_item= Cart.query.filter_by(user_id=user_id, product_id=product_id).first()
+    cart_item= Cart.query.filter_by(user_id=current_user.id, product_id=product_id).first()
 
     if cart_item:
         if cart_item.quantity> 1:
@@ -201,12 +199,7 @@ def decrease_quantity(product_id):
 
 @app.route('/urunsayisi_arttir/<int:product_id>')
 def increase_quantity(product_id):
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
-
-    user_id= session["user_id"]
-    cart_item= Cart.query.filter_by(user_id=user_id, product_id=product_id).first()
+    cart_item= Cart.query.filter_by(user_id=current_user.id, product_id=product_id).first()
 
     if cart_item:
         cart_item.quantity+=1
@@ -216,12 +209,9 @@ def increase_quantity(product_id):
 # ----------------------------------------------------- Ödeme -----------------------------------------------------
 
 @app.route('/odemeyap', methods=["GET", "POST"])
+@login_required
 def payment():
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
-    user_id= session["user_id"]
-    cart_products= Cart.query.filter_by(user_id= user_id)
+    cart_products= Cart.query.filter_by(user_id= current_user.id)
     total_price=0
     for item in cart_products:
         total_price+= item.product.price* item.quantity
@@ -240,12 +230,9 @@ def payment():
     return render_template("payment.html", total_price=total_price)
 
 @app.route('/alisverisi_tamamla')
+@login_required
 def complete_purchase():
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
-    user_id= session["user_id"]
-    cart_products= Cart.query.filter_by(user_id=user_id).all()
+    cart_products= Cart.query.filter_by(user_id=current_user.id).all()
 
     if not cart_products:
         flash("Sepetiniz boş!", "danger")
@@ -262,18 +249,18 @@ def complete_purchase():
 
     return redirect(url_for('cart'))
 
+# ----------------------------------------------------- Cüzdan -----------------------------------------------------
+
+# İleride eklenecek
+
 # ----------------------------------------------------- Ürünler -----------------------------------------------------
 
 @app.route('/urun_ekle', methods=["GET", "POST"])
+@login_required
 def add_product():
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for('login'))
-
-    user = User.query.get(session['user_id'])
+    user= User.query.get(current_user.id)
     if not user or user.role != "seller":
-        flash("Bu sayfaya erişim izniniz yok!", "danger")
-        return redirect(url_for("home"))
+        return abort(403)
 
     if request.method== "POST":
         name= request.form.get("product_name")
@@ -340,23 +327,19 @@ def product_detail(product_id):
     product= Product.query.get_or_404(product_id)
     comments= Comment.query.filter_by(product_id=product.id).all()
     user=None
-    if "user_id" in session:
-        user_id= session["user_id"]
+    if current_user.is_authenticated:
+        user_id= current_user.id
         user= User.query.filter_by(id= user_id)
     return render_template("product_details.html", product=product, comments=comments, user=user)
 
 @app.route('/urun_sil/<int:product_id>')
+@login_required
 def delete_product(product_id):
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for('login'))
-    user= User.query.get(session['user_id'])
-
-    if not user or user.role!= "seller":
-        flash("Bu sayfaya erişim izniniz yok!", "danger")
-        return redirect(url_for("home"))
-    
+    user= User.query.get(current_user.id)
     product= Product.query.get_or_404(product_id)
+    if not user or user.role!= "seller" or user.id!= product.seller_id:
+        return abort(403)
+    
     if product.image:
         image_location= os.path.join(app.config['UPLOAD_FOLDER'], product.image)
         os.remove(image_location)
@@ -369,40 +352,32 @@ def delete_product(product_id):
     return redirect(url_for('my_shop'))
 
 @app.route('/magazam')
+@login_required
 def my_shop():
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for('login'))
-    
-    user= User.query.get(session['user_id'])
+    user= User.query.get(current_user.id)
     if not user or user.role!= "seller":
-        flash("Bu sayfaya erişim izniniz yok!", "danger")
-        return redirect(url_for("home"))
+        return abort(403)
     
-    products= Product.query.filter_by(seller_id=session['user_id']).all()
+    products= Product.query.filter_by(seller_id=current_user.id).all()
     total_revenue= sum([product.total_earnings for product in products])
     return render_template("dashboard.html", products=products, total_revenue=total_revenue)
 
 
 @app.route('/stok_arttir/<int:product_id>')
+@login_required
 def increase_quantity_stocks(product_id):
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
     
-    user_id= session["user_id"]
+    user_id= current_user.id
     product= Product.query.filter_by(seller_id= user_id, id= product_id).first()
     product.stocks+=1
     db.session.commit()
     return redirect(url_for("my_shop", user_id=user_id, product_id=product_id))
 
 @app.route('/stok_azalt/<int:product_id>')
+@login_required
 def decrease_quantity_stocks(product_id):
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
-    
-    user_id= session["user_id"]
+
+    user_id= current_user.id
     product= Product.query.filter_by(seller_id=user_id, id=product_id).first()
 
     product.stocks-=1
@@ -412,8 +387,9 @@ def decrease_quantity_stocks(product_id):
 # ----------------------------------------------------- Yorumlar -----------------------------------------------------
 
 @app.route('/yorum_ekle', methods=["POST"])
+@login_required
 def add_comment():
-    user_id= session["user_id"]
+    user_id= current_user.id
     product_id= request.form.get("product_id")
 
     content= request.form.get("add-comment")
@@ -436,23 +412,19 @@ def add_comment():
 @app.route('/guncellemeler')
 def updates():
     user=None
-    if "user_id" in session:
-        user= User.query.get(session["user_id"])
+    if current_user.is_authenticated:
+        user= User.query.get(current_user.id)
     
     updates= Update.query.all()
 
     return render_template("update.html", user=user, updates=updates)
 
 @app.route('/guncelleme_ekle', methods=["GET", "POST"])
+@login_required
 def add_update():
-    if "user_id" not in session:
-        flash("Önce giriş yapmalısınız!", "danger")
-        return redirect(url_for('giris'))
-    
-    user= User.query.get(session["user_id"])
+    user= User.query.get(current_user.id)
     if user.role=="user" or user.role=="seller":
-        flash("Bu sayfaya erişim izniniz yok!", "danger")
-        return(redirect(url_for('updates')))
+        return abort(403)
 
     if request.method== "POST":
         content= request.form.get("update_content")
@@ -478,9 +450,9 @@ def login():
     if request.method== 'POST':
         username= request.form['username']
         password= request.form['password']
-        user = User.query.filter_by(username=username).first()
+        user= User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
-            session['user_id']= user.id
+            login_user(user)
             flash(f"Hoş geldiniz, {username}!", "success")
             return redirect(url_for('home'))
         flash("Kullanıcı adı veya şifre hatalı!", "danger")
@@ -490,45 +462,97 @@ def login():
 @app.route('/kayit', methods=["GET", "POST"])
 def register():
     if request.method== "POST":
-        username= request.form["username"]
-        password= request.form["password"]
-        role= request.form["role"]
-        if not username or not password or not role:
+        username= request.form.get("username")
+        password= request.form.get("password")
+        email= request.form.get("email")
+        role= request.form.get("role")
+        if not username or not password or not role or not email:
             flash("Kullanıcı adı veya şifre boş olamaz!", "danger")
             return redirect(url_for("register"))
-        
+
         if User.query.filter_by(username=username).first():
             flash("Bu kullanıcı adı zaten alınmış!", "danger")
             return redirect(url_for('register'))
         
         # Şifre güvenliği
         hashed_password= generate_password_hash(password)
+        code= str(random.randint(100000, 999999))
 
-        user= User(username=username, password=hashed_password, role=role)
-        db.session.add(user)
-        db.session.commit()
-        flash("Kayıt başarılı! Giriş yapabilirsiniz.", "success")
-        return redirect(url_for('login'))
+        session["pending_user"]= {
+            'username': username,
+            'email': email,
+            'password': hashed_password,
+            'role': role
+        }
+        session["verification_code"]=code
+        session["code_time"]= time.time()
+        msg= Message("Kayıt Doğrulama Kodu", sender="MAIL_USERNAME", recipients=[email])
+        msg.html= render_template('email_verification.html', code=code)
+
+        try:
+            mail.send(msg)
+            flash("Doğrulama kodu e-posta adresinize gönderildi!", "success")
+            return redirect(url_for('verify_email'))
+        except Exception as error:
+            flash(f"E-posta gönderilirken bir hata oluştu!", "danger")
+            print(f"E-posta gönderilirken hata oluştu: {error}")
+
     return render_template('register.html')
+
+@app.route('/dogrulama', methods=["GET", "POST"])
+def verify_email():
+    if request.method== "POST":
+        code= request.form.get("full_code")
+        real_code= session.get("verification_code")
+        if not code or not real_code:
+            flash(f"Kodunuzun süresi dolmuş veya geçersiz! {real_code}", "danger")
+            return redirect(url_for('verify_email'))
+        
+        if time.time()- session.get("code_time")> 5*60: # 5 dakika
+            flash("Kodunuzun süresi dolmuş!", "danger")
+            session.pop("pending_user", None)
+            session.pop("verification_code", None)
+            session.pop("code_time", None)
+            return redirect(url_for('verify_email'))
+
+        if code== real_code:
+            pending= session.get("pending_user")
+            if pending:
+                new_user= User(
+                    username= pending["username"],
+                    email= pending["email"],
+                    password= pending["password"],
+                    role= pending["role"]
+                )
+
+                db.session.add(new_user)
+                db.session.commit()
+                session.pop("pending_user", None)
+                session.pop("verification_code", None)
+                session.pop("code_time", None)
+                current_user.id= new_user.id
+                flash(f"Kayıt başarılı! Hoşgeldiniz {new_user.username}", "success")
+                return redirect(url_for('home'))
+        else:
+            flash("Kodunuz geçersiz!", "danger")
+            return redirect(url_for('verify_email'))
+    return render_template("verify.html")
 
 @app.route('/cikis')
 def logout():
-    session.pop('user_id', None)
+    logout_user()
     return redirect(url_for('home'))
 
 # ----------------------------------------------------- Özel komutlar -----------------------------------------------------
 
 @app.route('/admin', methods=["GET", "POST"])
+@login_required
 def admin():
-    if "user_id" not in session:
-        flash("Giriş yapmalısınız!", "danger")
-        return redirect(url_for("login"))
-    user_id= session["user_id"]
+    user_id= current_user.id
     user= User.query.filter_by(id= user_id).first()
 
     if not user or user.role== "seler" or user.role=="user":
-        flash(f"Bu sayfaya erişim izniniz yok! Şu anki rolünüz: {user.role}", "danger")
-        return redirect(url_for('home'))
+        return abort(403)
 
     users= User.query.all()
     products= Product.query.all()
@@ -602,7 +626,7 @@ def admin():
             if command in ["products", "users", "comments"]:
                 if command=="products":
                     for product in products:
-                        cart_items = Cart.query.filter_by(product_id=product.id).all()
+                        cart_items= Cart.query.filter_by(product_id=product.id).all()
                         for item in cart_items:
                             db.session.delete(item)
                         db.session.delete(product)
@@ -613,7 +637,7 @@ def admin():
                 elif command=="users":
                     users= User.query.all()
                     for user in users:
-                        if user.role == "admin":
+                        if user.role== "admin":
                             continue
                             
                         user_comments= Comment.query.filter_by(user_id=user.id).all()
@@ -622,7 +646,7 @@ def admin():
 
                         user_products= Product.query.filter_by(seller_id=user.id).all()
                         for user_product in user_products:
-                            cart_items = Cart.query.filter_by(product_id=user_product.id).all()
+                            cart_items= Cart.query.filter_by(product_id=user_product.id).all()
                             for item in cart_items:
                                 db.session.delete(item)
                             db.session.delete(user_product)
@@ -643,6 +667,21 @@ def admin():
     
     return render_template("admin.html", users=users, products=products, comments=comments)
 
+# ----------------------------------------------------- Hata Sayfaları -----------------------------------------------------
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template("errors/error404.html"), 404
+
+@app.errorhandler(403)
+def forbidden(error):
+    return render_template("errors/error403.html"), 403
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return render_template("errors/error500.html"), 500
+
+with app.app_context():
+    db.create_all()
+
 if __name__ == "__main__":
     app.run(debug=True)
-    #app.run(host="0.0.0.0", port=5000, debug=True) # Aynı ip'deki cihazların girebilmesi için
