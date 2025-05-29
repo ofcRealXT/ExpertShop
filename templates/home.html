@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ user.username if user else 'ExpertShop' }} - Anasayfa</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
+    <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 </head>
@@ -59,6 +60,11 @@
                 </div>
             {% endif %}
         {% endwith %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                hideFlashMessages(3000);
+            });
+        </script>
 
         <h1>Anasayfa</h1>
         <div id="search-container">
