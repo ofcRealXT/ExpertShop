@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/update.css') }}">
+    <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <title>Güncelleme Notları</title>
@@ -25,7 +26,12 @@
             </div>
         {% endif %}
     {% endwith %}
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            hideFlashMessages(3000);
+        });
+    </script>
+    
     <main>
         <div class="serit"><h1>Güncellemeler</h1></div>
         {% if user.role=="admin" or user.role=="creator" %}
