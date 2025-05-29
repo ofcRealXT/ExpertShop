@@ -60,3 +60,88 @@
     transform: translateY(-50%);
     font-size: 20px;
 }
+
+/*--------------------------- Doğrulama kısmı ---------------------------*/
+
+.main-gku {
+    flex: 1;
+}
+.verify-container {
+    min-height: 320px;
+    width: 340px;
+    color: #760000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 32px 32px 32px;
+    border-radius: 18px;
+    border: 1.5px solid #760000;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 8px 32px rgba(118, 0, 0, 0.08);
+    margin: 30px;
+}
+
+.verify-container h1 {
+    font-size: 2rem;
+    margin-bottom: 18px;
+    letter-spacing: 1px;
+}
+
+.inp {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.inp input[type="text"] {
+    width: 48px;
+    height: 56px;
+    margin: 8px 4px;
+    font-size: 2.1rem;
+    outline: none;
+    border: 2px solid #760000;
+    border-radius: 8px;
+    text-align: center;
+    color: #760000;
+    background: #fff7f7;
+    transition: border 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(118, 0, 0, 0.04);
+}
+
+.inp input[type="text"]:focus {
+    border: 2px solid #c40000;
+    box-shadow: 0 0 0 2px #ffeaea;
+    background: #fff0f0;
+}
+
+.inp input[type="text"]::-webkit-input-placeholder {
+    color: #d1a1a1;
+}
+
+.inp input[type="text"]::placeholder {
+    color: #d1a1a1;
+}
+
+.inp {
+    margin-bottom: 12px;
+}
+
+.inp button.submit-btn {
+    margin-top: 18px;
+    padding: 10px 32px;
+    background: linear-gradient(90deg, #760000 0%, #c40000 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(118, 0, 0, 0.08);
+    transition: background 0.2s, transform 0.1s;
+}
+
+.inp button.submit-btn:hover {
+    background: linear-gradient(90deg, #c40000 0%, #760000 100%);
+    transform: translateY(-2px) scale(1.03);
+}
