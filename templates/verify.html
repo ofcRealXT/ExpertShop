@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/lgn_rgs.css') }}">
+    <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">    
+    <title>E-postanızı doğrulayın</title>
+</head>
+<body>
+    <header>
+        <div id="ust-serit">
+            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop"></a>
+        </div>
+    </header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}"><p>{{ message }}</p></div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            hideFlashMessages(3000);
+        });
+    </script>
+    <main class="main-gku">
+        <form action="{{ url_for('verify_email') }}" method="post">
+            <div class="verify-container">
+                <h1>Doğrulama</h1>
+                <div class="inp">
+                    <div style="display: flex; justify-content: center;">
+                        <input type="text" maxlength="1" name="code1" required autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" maxlength="1" name="code2" required autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" maxlength="1" name="code3" required autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" maxlength="1" name="code4" required autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" maxlength="1" name="code5" required autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" maxlength="1" name="code6" required autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                        <input type="hidden" name="full_code" id="full_code">
+                    </div>
+                    <button class="submit-btn" type="submit">Doğrula</button>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        let inputs = [...document.querySelectorAll('.inp input[type="text"]')];
+        inputs.forEach((element, idx) => {
+            element.addEventListener('keyup', (e) => {
+                if (element.value.length === 1 && idx + 1 < inputs.length) {
+                    inputs[idx + 1].focus();
+                }
+                if (e.key === "Backspace" && element.value === "" && idx > 0) {
+                    inputs[idx - 1].focus();
+                }
+            });
+            element.addEventListener('input', (e) => {
+                element.value = element.value.replace(/[^0-9]/g, '');
+            });
+        });
+
+        document.querySelector('form').addEventListener('submit', function(e) {
+            let code = inputs.map(input => input.value).join('');
+            document.getElementById('full_code').value = code;
+            inputs.forEach(input => input.removeAttribute('name'));
+        });
+    </script>
+    
+    <footer>
+        <div class="footer-top">
+            <div class="social-links">
+                <p>Bizimle iletişime geçin!</p>
+                <a href="mailto:talhaozc.2010@gmail.com" target="_blank"><i class='bx bx-envelope'></i> Mail</a>
+                <br>
+                <a href="https://www.instagram.com/talha.ozc22" target="_blank"><i class="bx bxl-instagram"></i> Instagram</a>
+                <br>
+                <a href="{{ url_for('updates') }}"><i class='bx bxs-megaphone'></i> Güncellemeler</a>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 ExpertShop. Tüm hakları gizlidir.</p>
+        </div>
+    </footer>
+</body>
+</html>
