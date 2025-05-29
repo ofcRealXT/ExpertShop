@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Images/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/error.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <script src="{{ url_for('static', filename='JS/script.js') }}"></script>
+    <title>403 Yasaklı Sayfa</title>
+</head>
+<body>
+    <header>
+        <div id="ust-serit">
+            <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='/Images/ExpertShop.png') }}" alt="ExpertShop"></a>
+        </div>
+    </header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}"><p>{{ message }}</p></div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            hideFlashMessages(3000);
+        });
+    </script>
+
+    <main>
+        <div class="error-container">
+            <div class="error-code">404</div>
+            <div class="error-message">Sayfa Bulunamadı</div>
+            <div class="error-desc">
+                Bu sayfa yok veya silinmiş.<br>
+                Lütfen ana sayfaya dönün veya yöneticinizle iletişime geçin.
+            </div>
+            <a href="{{ url_for('home') }}">Ana Sayfa'ya Dön</a>
+        </div>
+    </main>
+</body>
+</html>
